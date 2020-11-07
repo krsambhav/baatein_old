@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+      integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;200;300&display=swap"
+      rel="stylesheet"
+    />
+    <title>Baatein</title>
+    <style>
+      body{
+        margin: 0;
+      }
+      * {
+        font-family: "IBM Plex Sans";
+        text-align: center;
+        transition: 0.5s;
+      }
+      .mainContainer {
+        margin: 0;
+        padding: 3vh;
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        width: 50%;
+      }
+      #msg {
+        text-shadow: 3px 2px 5px rgba(0, 0, 0, 0.5);
+      }
+      #chat {
+        transition: 0.5s;
+      }
+      #chat:hover {
+        background-color: rgb(30, 153, 122) !important;
+      }
+      @media screen and (max-width:800px) 
+      {
+       .mainContainer{
+          width: 90%;
+       } 
+       #box{
+         font-size: .8rem;
+       }
+      }
+    </style>
+  </head>
+  <body class="">
+    <div class="mainContainer shadow">
+      <h3 id="msg">Hello</h3>
+      <form
+        action="chat"
+        class="mt-5 form-control border-0 d-inline-flex flex-column align-items-center"
+        method="POST"
+      >
+        <!-- <input type="text" class="username" placeholder="User Name" /> -->
+        <input
+          type="text"
+          id="box"
+          class="message form-control w-50 border-0 shadow"
+          placeholder="Enter Your Name"
+          name="user"
+          autocomplete="off"
+        />
+        <br /><br />
+        <h6 id="lg">Select Your Language</h6>
+        <br />
+        <select name="lang" id="lang" class="shadow-sm border-0">
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="bn">Bangla</option>
+          <option value="ml">Malayalam</option>
+          <option value="mr">Marathi</option>
+          <option value="gu">Gujarati</option>
+          <option value="ne">Nepali</option>
+          <option value="pa">Punjabi</option>
+          <option value="ta">Tamil</option>
+          <option value="te">Telugu</option>
+          <option value="ur">Urdu</option>
+          <option value="ru">Russian</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="el">Greek</option>
+        </select>
+        <br /><br />
+        <input
+          type="submit"
+          id="chat"
+          class="btn btn-danger shadow rounded-0 border-0"
+          value="Start Chatting"
+        />
+      </form>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+      integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"
+      integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ=="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      let langlist = document.querySelector("#lang");
+      let msg = $("#msg");
+      let lg = $("#lg");
+
+      let socket = io.connect(
+        "http://" + document.domain + ":" + location.port);
+
+      socket.on("connect", () => {
+        socket.emit('connected');
+        let form = $("form").on("submit", (e) => {
+          let username = $("#box").val();
+          let lang = $("#lang").val();
+          localStorage.setItem("username", username);
+          localStorage.setItem("lang", lang);
+        });
+      });
+
+      socket.on('my sid', function (sid) {
+        console.log(sid);
+        localStorage.setItem('sid', sid);
+      })
+
+      $("#lang").on("change", function (e) {
+        let optionSelected = $("option:selected", this);
+        let valueSelected = this.value;
+        console.log(valueSelected);
+        switch (valueSelected) {
+          case "hi":
+            msg.html("नमस्कार");
+            lg.html("अपनी भाषा का चयन करें");
+            $("#box").attr("placeholder", "अपना नाम दर्ज करें");
+            $("#chat").attr("value", "चैटिंग शुरू करें");
+            break;
+
+          case "en":
+            msg.html("Hello");
+            lg.html("Select Your Language");
+            $("#box").attr("placeholder", "Enter Your Name");
+            $("#chat").attr("value", "Start Chatting");
+            break;
+
+          case "bn":
+            msg.html("হ্যালো");
+            lg.html("আপনার ভাষা নির্বাচন করুন");
+            $("#box").attr("placeholder", "আপনার নাম প্রবেশ করুন");
+            $("#chat").attr("value", "চ্যাটিং শুরু");
+            break;
+
+          case "ml":
+            msg.html("ഹലോ");
+            $("#box").attr("placeholder", "നിങ്ങളുടെ പേര് നൽകുക");
+            lg.html("നിങ്ങളുടെ ഭാഷ തിരഞ്ഞെടുക്കുക");
+            $("#chat").attr("value", "ചാറ്റിംഗ് ആരംഭിക്കുക");
+            break;
+
+          case "mr":
+            msg.html("नमस्कार");
+            $("#box").attr("placeholder", "आपले नांव लिहा");
+            lg.html("आपली भाषा निवडा");
+            $("#chat").attr("value", "गप्पा मारणे सुरू करा");
+            break;
+
+          case "gu":
+            msg.html("નમસ્તે");
+            $("#box").attr("placeholder", "તમારું નામ દાખલ કરો");
+            lg.html("તમારી ભાષા પસંદ કરો");
+            $("#chat").attr("value", "ચેટિંગ શરૂ કરો");
+            break;
+
+          case "ne":
+            msg.html("नमस्कार");
+            $("#box").attr("placeholder", "तपाईंको नाम प्रविष्ट गर्नुहोस्");
+            lg.html("तपाइँको भाषा चयन गर्नुहोस्");
+            $("#chat").attr("value", "कुराकानी सुरु गर्नुहोस्");
+            break;
+
+          case "pa":
+            msg.html("ਸਤ ਸ੍ਰੀ ਅਕਾਲ");
+            $("#box").attr("placeholder", "ਆਪਣਾ ਨਾਮ ਦਰਜ ਕਰੋ");
+            lg.html("ਆਪਣੀ ਭਾਸ਼ਾ ਚੁਣੋ");
+            $("#chat").attr("value", "ਗੱਲਬਾਤ ਸ਼ੁਰੂ ਕਰੋ");
+            break;
+
+          case "ta":
+            msg.html("வணக்கம்");
+            $("#box").attr("placeholder", "உங்கள் பெயரை உள்ளிடவும்");
+            lg.html("உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்");
+            $("#chat").attr("value", "அரட்டையடிக்கத் தொடங்குங்கள்");
+            break;
+
+          case "te":
+            msg.html("హలో");
+            $("#box").attr("placeholder", "మీ పేరు రాయుము, మీ పేరు రాయండి");
+            lg.html("మీ భాషను ఎంచుకోండి");
+            $("#chat").attr("value", "చాటింగ్ ప్రారంభించండి");
+            break;
+
+          case "ur":
+            msg.html("ہیلو");
+            $("#box").attr("placeholder", "اپنا نام درج کریں");
+            lg.html("اپنی زبان منتخب کریں");
+            $("#chat").attr("value", "چیٹنگ شروع کرو");
+            break;
+
+          case "ru":
+            msg.html("Здравствуйте");
+            $("#box").attr("placeholder", "Введите ваше имя");
+            lg.html("Выберите ваш язык");
+            $("#chat").attr("value", "Начать чат");
+            break;
+
+          case "fr":
+            msg.html("Bonjour");
+            $("#box").attr("placeholder", "Entrez votre nom");
+            lg.html("Choisissez votre langue");
+            $("#chat").attr("value", "Commencer à discuter");
+            break;
+
+          case "de":
+            msg.html("Hallo");
+            lg.html("Wähle deine Sprache");
+            $("#box").attr("placeholder", "Gib deinen Namen ein");
+            $("#chat").attr("value", "Starten Sie den Chat");
+            break;
+
+          case "el":
+            msg.html("γεια");
+            lg.html("Επιλέξτε την γλώσσα σας");
+            $("#box").attr("placeholder", "Εισάγετε το όνομά σας");
+            $("#chat").attr("value", "Ξεκινήστε να συνομιλείτε");
+            break;
+
+          default:
+            console.log("NONE");
+            break;
+        }
+      });
+    </script>
+  </body>
+</html>

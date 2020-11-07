@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+      integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;200;300&display=swap"
+      rel="stylesheet"
+    />
+    <title>Baatein</title>
+    <style>
+      .msg {
+        position: relative;
+        height: 500px;
+        margin: 5rem auto;
+        overflow-y: scroll;
+        width: 50%;
+        line-height: 2rem;
+      }
+      .msg::-webkit-scrollbar {
+        display: none;
+      }
+      * {
+        font-family: "IBM Plex Sans";
+      }
+      @media screen and (max-width:800px) 
+      {
+        .msg{
+          width: 80%;
+        }
+        #msgbox{
+          width: 80% !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="">
+    <div class="msg">
+    
+    </div>
+    <form
+      action=""
+      class="mt-1 form-control border-0 d-inline-flex flex-column align-items-center"
+    >
+      <!-- <input type="text" class="username" placeholder="User Name" /> -->
+      <input
+        type="text"
+        id="msgbox"
+        class="message form-control w-50 border-0 shadow"
+        placeholder="Type Message Here..."
+        autocomplete="off"
+      />
+      <br />
+      <input type="submit" class="btn btn-dark shadow" value="Send" />
+    </form>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+      integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"
+      integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ=="
+      crossorigin="anonymous"
+    ></script>
+    <script type="text/javascript">
+      let socket = io.connect(
+        "http://" + document.domain + ":" + location.port
+      );
+
+      let username = "Anonymous";
+      let language = "en";
+      let sid = "";
+
+      socket.on("connect", function () {
+        username = localStorage.getItem("username");
+        let lang = localStorage.getItem("lang");
+        let form = $("form").on("submit", function (e) {
+          e.preventDefault();
+          let msg = $("input.message").val();
+          socket.emit("my event", { username, msg, lang });
+          $(".msg").append("<div>" + "<b>" + username + " : </b>" + msg + "</div>");
+          $("input.message").val("").focus();
+        });
+      });
+
+      socket.on("my response", function (data) {
+        let recvd_username = data[0];
+        let msg = data[1];
+        let sender_lang = data[2];
+        sid = localStorage.getItem("sid");
+        lang = localStorage.getItem("lang");
+        console.log(sid);
+        socket.emit("translate_self", { sid, recvd_username, msg, sender_lang, lang });
+      });
+
+      socket.on("final msg", function (msg) {
+        let isMyId = msg[0] == sid;
+        console.log(sid);
+        console.log(isMyId);
+        if (isMyId) {
+          $(".msg").append("<div>" + "<b>" + msg[1] + " : </b>" + msg[2] + "</div>");
+        }
+      });
+
+      socket.on('on_connect', function (msg) {
+        $(".msg").append("<div>" + "<b>" + msg + "</b>" + "</div>");
+      })
+    </script>
+  </body>
+</html>
